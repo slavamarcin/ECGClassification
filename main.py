@@ -73,21 +73,25 @@ x_test = np.array(listofx)
 y_train = onehotencoder.fit_transform(y_train.reshape(-1, 1)).toarray()
 y_test = onehotencoder.transform(y_test.reshape(-1, 1)).toarray()
 
-x_train = x_train.transpose(0,2,1)
+
+
+# x_train = x_train.transpose(0,2,1)
 # x_train = x_train.reshape(x_train.shape[0], (x_train.shape[1]*x_train.shape[2]))
-x_test = x_test.transpose(0,2,1)
+# x_test = x_test.transpose(0,2,1)
 # x_test = x_test.reshape(x_test.shape[0], (x_test.shape[1]*x_test.shape[2]))
 
 # onehotencoderY = OneHotEncoder()
 # x_train = onehotencoderY.fit_transform(x_train).toarray()
 # x_test = onehotencoderY.fit_transform(x_test).toarray()
-model = SequentialModel()
-model.train(x_train = [x_train[::,0,::],x_train[::,1,::],x_train[::,2,::],x_train[::,3,::],x_train[::,4,::],x_train[::,5,::],
-                       x_train[::,6,::],x_train[::,7,::],x_train[::,8,::],x_train[::,9,::],x_train[::,10,::],x_train[::,11,::]],
+# model = SequentialModel()
+# model.train(x_train = [x_train[::,0,::],x_train[::,1,::],x_train[::,2,::],x_train[::,3,::],x_train[::,4,::],x_train[::,5,::],
+#                        x_train[::,6,::],x_train[::,7,::],x_train[::,8,::],x_train[::,9,::],x_train[::,10,::],x_train[::,11,::]],
+#             y_train = y_train,
+#             x_test = [x_test[::,0,::],x_test[::,1,::],x_test[::,2,::],x_test[::,3,::],x_test[::,4,::],x_test[::,5,::],
+#                       x_test[::,6,::],x_test[::,7,::],x_test[::,8,::],x_test[::,9,::],x_test[::,10,::],x_test[::,11,::]],y_test = y_test)
+modelRNN = RNNModel(x_train)
+modelRNN.train(x_train = x_train,
             y_train = y_train,
-            x_test = [x_test[::,0,::],x_test[::,1,::],x_test[::,2,::],x_test[::,3,::],x_test[::,4,::],x_test[::,5,::],
-                      x_test[::,6,::],x_test[::,7,::],x_test[::,8,::],x_test[::,9,::],x_test[::,10,::],x_test[::,11,::]],y_test = y_test)
-# modelRNN = RNNModel(x_train)
-# modelRNN.train(x_train = x_train,y_train =y_train,x_test = x_test,y_test = y_test)
-pass
+            x_test = x_test,y_test = y_test)
+# pass
 
