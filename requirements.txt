@@ -1,0 +1,5 @@
+giotto-tda
+scikit-learn
+numpy
+pandas
+wfdb
