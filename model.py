@@ -262,7 +262,7 @@ class RNNModel:
 
         self.model.summary()
     def train(self,X_train,Y_train,Z_train,callbacks_list,X_valid,Y_valid,Z_valid):
-        self.model.fit([X_train, Y_train], Z_train, epochs=2, batch_size=32, callbacks=callbacks_list, validation_data=([X_valid, Y_valid], Z_valid))
+        self.model.fit([X_train, Y_train], Z_train, epochs=10, batch_size=32, callbacks=callbacks_list, validation_data=([X_valid, Y_valid], Z_valid))
         print('\nhistory dict:', self.model.history)
         self.model.save('modelRNN')
 

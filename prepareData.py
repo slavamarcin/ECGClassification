@@ -1,13 +1,14 @@
 import os
 import ast
 import wfdb
-
+from keras import *
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 import keras as keras
+from keras.saving.legacy.save import load_model
 from keras.utils import plot_model
 
 from model import RNNModel
@@ -167,99 +168,27 @@ for i in range(z2.shape[-1]):
 m = keras.metrics.BinaryAccuracy()
 m.update_state(Z_test, z2)
 m.result()
-#
-#
-# def create_model01(X_shape, Z_shape):
-#     X_inputs = keras.Input(X_shape[1:], name='X_inputs')
-#
-#     X = create_X_model(X_inputs)
-#     X = keras.layers.Dense(64, activation='relu', name='Z_dense_1')(X)
-#     X = keras.layers.Dense(64, activation='relu', name='Z_dense_2')(X)
-#     X = keras.layers.Dropout(0.5, name='Z_drop_1')(X)
-#     outputs = keras.layers.Dense(Z_shape[-1], activation='sigmoid', name='Z_outputs')(X)
-#
-#     model = keras.Model(inputs=X_inputs, outputs=outputs, name='model01')
-#     return model
-#
-#
-# model01 = create_model01(X_train.shape, Z_train.shape)
-# model01.compile(optimizer='adam', loss='binary_crossentropy', metrics=['binary_accuracy', 'Precision', 'Recall'])
-# model01.summary()
-#
-# MODEL_CHECKPOINT = 'model01.keras'
+
+# model = RNNModel(X_train.shape, Y_train.shape, Z_train.shape)
+# # model02.compile(optimizer='adam', loss='binary_crossentropy', metrics=['binary_accuracy', 'Precision', 'Recall'])
+# MODEL_CHECKPOINT = 'model02.keras'
 #
 # callbacks_list = [
-#     keras.callbacks.EarlyStopping(monitor='val_binary_accuracy', patience=10),
-#     keras.callbacks.ModelCheckpoint(filepath=MODEL_CHECKPOINT, monitor='val_binary_accuracy', save_best_only=True)
+#     keras.callbacks.EarlyStopping(monitor='val_binary_accuracy', patience=5,restore_best_weights = True, verbose = 1),
+#     keras.callbacks.ModelCheckpoint(filepath=MODEL_CHECKPOINT, monitor='val_binary_accuracy', save_best_only=True),
+#     keras.callbacks.ReduceLROnPlateau(monitor='val_binary_accuracy', factor=0.2,  patience=5, min_lr=0.001)
 # ]
-#
-# history = model01.fit(X_train, Z_train, epochs=40, batch_size=32, callbacks=callbacks_list, validation_data=(X_valid, Z_valid))
-#
-# model01 = keras.models.load_model(MODEL_CHECKPOINT)
-#
-# sns.relplot(data=pd.DataFrame(history.history), kind='line', height=4, aspect=4)
+# model.train(X_train, Y_train, Z_train,callbacks_list,X_valid, Y_valid, Z_valid)
+# # model = keras.models.load_model(MODEL_CHECKPOINT)
+# plot_model(model.model, to_file='model.png')
+# sns.relplot(data=pd.DataFrame(model.model.history.history), kind='line', height=4, aspect=4)
 # plt.show()
-#
-# model01.evaluate(X_test, Z_test)
+# model.evaluate(X_test, Y_test, Z_test)
 
-
-# def create_Y_model(X, *, filters=(32, 64, 128), kernel_size=(5, 3, 3), strides=(1, 1, 1)):
-#     f1, f2, f3 = filters
-#     k1, k2, k3 = kernel_size
-#     s1, s2, s3 = strides
-#
-#     X = keras.layers.Conv1D(f1, k1, strides=s1, padding='same', name='Y_conv_1')(X)
-#     X = keras.layers.BatchNormalization(name='Y_norm_1')(X)
-#     X = keras.layers.ReLU(name='Y_relu_1')(X)
-#
-#     X = keras.layers.MaxPool1D(2, name='Y_pool_1')(X)
-#
-#     X = keras.layers.Conv1D(f2, k2, strides=s2, padding='same', name='Y_conv_2')(X)
-#     X = keras.layers.BatchNormalization(name='Y_norm_2')(X)
-#     X = keras.layers.ReLU(name='Y_relu_2')(X)
-#
-#     X = keras.layers.MaxPool1D(2, name='Y_pool_2')(X)
-#
-#     X = keras.layers.Conv1D(f3, k3, strides=s3, padding='same', name='Y_conv_3')(X)
-#     X = keras.layers.BatchNormalization(name='Y_norm_3')(X)
-#     X = keras.layers.ReLU(name='Y_relu_3')(X)
-#
-#     X = keras.layers.GlobalAveragePooling1D(name='Y_aver')(X)
-#     X = keras.layers.Dropout(0.5, name='Y_drop')(X)
-#
-#     return X
-#
-# def create_model02(X_shape, Y_shape, Z_shape):
-#     X_inputs = keras.Input(X_shape[1:], name='X_inputs')
-#     Y_inputs = keras.Input(Y_shape[1:], name='Y_inputs')
-#
-#     X = keras.layers.Concatenate(name='Z_concat')([create_X_model(X_inputs), create_Y_model(Y_inputs, filters=(64, 128, 256), kernel_size=(7, 3, 3))])
-#     X = keras.layers.Dense(64, activation='relu', name='Z_dense_1')(X)
-#     X = keras.layers.Dense(64, activation='relu', name='Z_dense_2')(X)
-#     X = keras.layers.Dropout(0.5, name='Z_drop_1')(X)
-#     outputs = keras.layers.Dense(Z_shape[-1], activation='sigmoid', name='Z_outputs')(X)
-#
-#     model = keras.Model(inputs=[X_inputs, Y_inputs], outputs=outputs, name='model02')
-#     return model
-
-model = RNNModel(X_train.shape, Y_train.shape, Z_train.shape)
-# model02.compile(optimizer='adam', loss='binary_crossentropy', metrics=['binary_accuracy', 'Precision', 'Recall'])
-MODEL_CHECKPOINT = 'model02.keras'
-
-callbacks_list = [
-    keras.callbacks.EarlyStopping(monitor='val_binary_accuracy', patience=5,restore_best_weights = True, verbose = 1),
-    keras.callbacks.ModelCheckpoint(filepath=MODEL_CHECKPOINT, monitor='val_binary_accuracy', save_best_only=True),
-    keras.callbacks.ReduceLROnPlateau(monitor='val_binary_accuracy', factor=0.2,  patience=5, min_lr=0.001)
-]
-model.train(X_train, Y_train, Z_train,callbacks_list,X_valid, Y_valid, Z_valid)
-# model = keras.models.load_model(MODEL_CHECKPOINT)
-plot_model(model.model, to_file='model.png')
-sns.relplot(data=pd.DataFrame(model.model.history.history), kind='line', height=4, aspect=4)
-plt.show()
-model.evaluate(X_test, Y_test, Z_test)
-
-layer_outputs = [layer.output for layer in model.model.layers[:5]]
-activations = model.model.predict([X_test, Y_test])
-first_layer_activation = activations[0]
+model = load_model('model02.keras')
+layer_outputs = [layer.output for layer in model.layers[:19]]
+activation_model = models.Model(inputs=model.input, outputs=layer_outputs)
+activations = activation_model.predict([X_test, Y_test])
+first_layer_activation = activations[18]
 print(first_layer_activation.shape)
-plt.matshow(first_layer_activation[0, :, :, 4], cmap='viridis')
+# plt.matshow(first_layer_activation[0, :, :, 4], cmap='viridis')
